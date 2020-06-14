@@ -22,24 +22,25 @@ firebase.initializeApp({
     measurementId: "G-Z4Y12GSTL4"
 })
 
-getLists=()=>{
-    var db=firebase.firestore()
-    let ref = db.collection('Unauthorized').get().then(function(querySnapshot){
-    lists=[]
-    querySnapshot.forEach(function(doc){
-        lists.push(doc.data()) 
-        })
-        console.log(lists)
-    })
-    return lists
-}
 
 export default class App extends React.Component{
     state={
       user:{},
+      lists:[],
       loading:true
     }
 
+getLists=()=>{
+        var db=firebase.firestore()
+        let ref = db.collection('Unauthorized').get().then(function(querySnapshot){
+        lists=[]
+        querySnapshot.forEach(function(doc){
+            lists.push(doc.data()) 
+            })
+            //console.log(lists)
+        })
+        return lists
+    }
 /*
     signOutUser =() =>{
         firebase.auth().signOut();
@@ -74,6 +75,7 @@ export default class App extends React.Component{
     }
 
     render() {
+        console.log(this.getLists())
         return (
             <View style={styles.container}>
                 <TouchableOpacity style={{marginTop:5,marginLeft:5}} onPress={this.signOutUser}>
@@ -84,7 +86,7 @@ export default class App extends React.Component{
                 </View>
                 <FlatList
                     style={styles.feed}
-                    data={getLists()}
+                    data={this.getLists()}
                     renderItem={({ item }) => this.renderPost(item)}
                     keyExtractor={item => item.id.toString()}
                     showsVerticalScrollIndicator={false}
