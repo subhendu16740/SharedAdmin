@@ -1,52 +1,45 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import 'react-native-gesture-handler';
 import {decode,encode} from 'base-64'
 import {View, Text,StyleSheet,FlatList,List,Image,Button, TouchableOpacity,LayoutAnimation, SnapshotViewIOS} from 'react-native';
 import * as firebase from 'firebase'
+import '@firebase/firestore'
 import { Ionicons } from "@expo/vector-icons";
 import moment from "moment";
-import Fire from './Fire'
+//import Fire from './Fire'
+var lists
 if(!global.btoa){global.btoa=encode}
 if(!global.atob){global.atob=decode}
 
+firebase.initializeApp({
+    apiKey: "AIzaSyCkjMo5_DP5LOPNYJzM0zPNzXx8H4VLSRo",
+    authDomain: "shared-a7555.firebaseapp.com",
+    databaseURL: "https://shared-a7555.firebaseio.com",
+    projectId: "shared-a7555",
+    storageBucket: "shared-a7555.appspot.com",
+    messagingSenderId: "887377171929",
+    appId: "1:887377171929:web:f12182d38f9310fc0135c8",
+    measurementId: "G-Z4Y12GSTL4"
+})
 
-/*
-const AuthStack = createStackNavigator({  
-  Login:LoginScreen
-});
+getLists=()=>{
+    var db=firebase.firestore()
+    let ref = db.collection('Unauthorized').get().then(function(querySnapshot){
+    lists=[]
+    querySnapshot.forEach(function(doc){
+        lists.push(doc.data()) 
+        })
+        console.log(lists)
+    })
+    return lists
+}
 
-createAppContainer(
-  createSwitchNavigator (
-    {
-      Loading : LoadingScreen,
-      Auth : AuthStack
-    },
-    {
-      initialRouteName :"Loading"
-    }
-  )
-);
-
-*/
 export default class App extends React.Component{
     state={
       user:{},
-      lists:[],
       loading:true
     }
 
-    componentDidMount(){
-        firebase=new Fire((error)=>{
-            if (error){
-                return alert("Something went wrong")
-            }
-            firebase.getLists(lists=>{
-                this.setState({lists,user},()=>{
-                this.setState({loading:false})
-            })
-          })
-    })
-}
 /*
     signOutUser =() =>{
         firebase.auth().signOut();
@@ -55,7 +48,6 @@ export default class App extends React.Component{
 
     renderPost = post => {
         return(
-            
              <View style={styles.feedItem}>
              <View style={{ flex: 1 }}>
                  <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
@@ -63,14 +55,14 @@ export default class App extends React.Component{
                          <Text style={styles.name}>{data.name}</Text>
                          <Text style={styles.timestamp}>{moment(data.timestamp).fromNow()}</Text>
                      </View>
-
+                        
                      <Ionicons name="ios-more" size={24} color="#73788B" />
                  </View>
                  <Text style={styles.post}>{data.author}</Text>
                  <Text style={styles.post}>{data.publication}</Text>
                  <Text style={styles.post}>{data.edition}</Text>
                  <Text style={styles.post}>{data.mrp}</Text>
-                 <Image source={lists.image} style={styles.postImage} resizeMode="cover" />
+                 <Image source={data.image} style={styles.postImage} resizeMode="cover" />
                  <View style={{ flexDirection: "row" }}>
                      <Ionicons name="ios-heart-empty" size={24} color="#73788B" style={{ marginRight: 16 }} />
                      <Ionicons name="ios-chatboxes" size={24} color="#73788B" />
@@ -84,15 +76,15 @@ export default class App extends React.Component{
     render() {
         return (
             <View style={styles.container}>
-            <TouchableOpacity style={{marginTop:5,marginLeft:5}} onPress={this.signOutUser}>
-            <Text>Logout</Text>
+                <TouchableOpacity style={{marginTop:5,marginLeft:5}} onPress={this.signOutUser}>
+                <Text>Logout</Text>
             </TouchableOpacity>
                 <View style={styles.header}>
                     <Text style={styles.headerTitle}>Feed</Text>
                 </View>
                 <FlatList
                     style={styles.feed}
-                    data={this.state.lists}
+                    data={getLists()}
                     renderItem={({ item }) => this.renderPost(item)}
                     keyExtractor={item => item.id.toString()}
                     showsVerticalScrollIndicator={false}
