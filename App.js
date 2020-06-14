@@ -37,9 +37,13 @@ getLists=()=>{
         querySnapshot.forEach(function(doc){
             lists.push(doc.data()) 
             })
-            //console.log(lists)
+            
+            console.log(lists)
         })
         return lists
+    }
+    componentDidMount(){
+        this.getLists()
     }
 /*
     signOutUser =() =>{
@@ -75,7 +79,6 @@ getLists=()=>{
     }
 
     render() {
-        console.log(this.getLists())
         return (
             <View style={styles.container}>
                 <TouchableOpacity style={{marginTop:5,marginLeft:5}} onPress={this.signOutUser}>
@@ -86,7 +89,7 @@ getLists=()=>{
                 </View>
                 <FlatList
                     style={styles.feed}
-                    data={this.getLists()}
+                    data={this.state.lists}
                     renderItem={({ item }) => this.renderPost(item)}
                     keyExtractor={item => item.id.toString()}
                     showsVerticalScrollIndicator={false}
