@@ -12,14 +12,7 @@ if(!global.btoa){global.btoa=encode}
 if(!global.atob){global.atob=decode}
 
 firebase.initializeApp({
-    Firebasekeys
-    
-    
-
-  
-   
-
-
+    Enter The Firebase Keys
 })
 
 
