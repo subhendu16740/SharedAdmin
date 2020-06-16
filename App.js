@@ -12,38 +12,43 @@ if(!global.btoa){global.btoa=encode}
 if(!global.atob){global.atob=decode}
 
 firebase.initializeApp({
-    Enter The Firebase Keys
+    apiKey: "AIzaSyCkjMo5_DP5LOPNYJzM0zPNzXx8H4VLSRo",
+    authDomain: "shared-a7555.firebaseapp.com",
+    databaseURL: "https://shared-a7555.firebaseio.com",
+    projectId: "shared-a7555",
+    storageBucket: "shared-a7555.appspot.com",
+    messagingSenderId: "887377171929",
+    appId: "1:887377171929:web:f12182d38f9310fc0135c8",
+    measurementId: "G-Z4Y12GSTL4"
 })
 
-
 export default class App extends React.Component{
-    state={
+constructor(props){
+    super(props);
+    this.state={
       user:{},
       lists:[],
       loading:true
     }
-
+}
 getLists=()=>{
         var db=firebase.firestore()
         let ref = db.collection('Unauthorized').get().then(function(querySnapshot){
-        lists=[]
-            let container=[]
+        let lists=[]
         querySnapshot.forEach(function(doc){
             lists.push(doc.data()) 
             })
-            this.setState({lists:container
+            this.setState({
+                lists:lists
+            })
             //console.log(lists)
-            console.log(this.state.lists)
-        })
-     }
-    componentDidMount(){
-        this.getLists()
+            
+        }) 
+                   
     }
-/*
-    signOutUser =() =>{
-        firebase.auth().signOut();
-    };
-*/
+componentDidMount(){
+    this.getLists()
+}
 
     renderPost = post => {
         return(
@@ -72,10 +77,11 @@ getLists=()=>{
         );
     }
 
-    render() {
+render() {
+    console.log(this.state.lists)
         return (
             <View style={styles.container}>
-                <TouchableOpacity style={{marginTop:5,marginLeft:5}} onPress={this.signOutUser}>
+                <TouchableOpacity style={{marginTop:5,marginLeft:5}} >
                 <Text>Logout</Text>
             </TouchableOpacity>
                 <View style={styles.header}>
@@ -153,4 +159,4 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         marginVertical: 16
     }
-});
+})
