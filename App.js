@@ -12,7 +12,7 @@ if(!global.btoa){global.btoa=encode}
 if(!global.atob){global.atob=decode}
 
 firebase.initializeApp({
-    Firebase Keys
+    Enter Firebase Keys Here
 })
 
 export default class App extends React.Component{
