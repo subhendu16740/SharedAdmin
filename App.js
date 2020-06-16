@@ -27,14 +27,15 @@ getLists=()=>{
         var db=firebase.firestore()
         let ref = db.collection('Unauthorized').get().then(function(querySnapshot){
         lists=[]
+            let container=[]
         querySnapshot.forEach(function(doc){
             lists.push(doc.data()) 
             })
-            
-            console.log(lists)
+            this.setState({lists:container
+            //console.log(lists)
+            console.log(this.state.lists)
         })
-        return lists
-    }
+     }
     componentDidMount(){
         this.getLists()
     }
