@@ -1,6 +1,9 @@
 import React, { useCallback } from "react";
 import "react-native-gesture-handler";
 import { decode, encode } from "base-64";
+import Fire from "./Fire"
+const firebase = require('firebase')
+require("firebase/firestore");
 import {
   View,
   Text,
@@ -10,10 +13,7 @@ import {
   Image,
   Button,
   TouchableOpacity,
-  LayoutAnimation,
-  SnapshotViewIOS,
 } from "react-native";
-import * as firebase from "firebase";
 import "@firebase/firestore";
 import { Ionicons } from "@expo/vector-icons";
 import moment from "moment";
@@ -25,94 +25,119 @@ if (!global.atob) {
   global.atob = decode;
 }
 
-firebase.initializeApp({});
+
 
 export default class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      name:"",
       user: {},
       lists: [],
       loading: true,
     };
   }
-  getLists = () => {
-    var db = firebase.firestore();
-    return db
-      .collection("classes")
-      .get()
-      .then(function (querySnapshot) {
-        let lists = [];
-        querySnapshot.forEach(function (doc) {
-          lists.push(doc.data());
-        });
+  getLists = async() =>{
+    await firebase.auth().signInAnonymously()
+    const db = firebase.firestore();
+    const ref =db.collection("Unauthorized")
+    let lists=[]
+      const snapshot=await ref.get()
+      snapshot.forEach((doc)=>{
+        lists.push(doc.data())
+      })
+      this.setState({lists})
+     // console.log(this.state.lists)
+        }
 
-        console.log(lists);
-        return lists;
-      });
-  };
-  async componentDidMount() {
-    let classes = await this.getLists();
-    this.setState({
-      lists: classes,
-    });
-    console.log("CDM", classes);
+
+        handlePost =(post)=>{
+          //console.log(post.name)
+          Fire.shared.addPost({PickerValue:post.PickerValue,
+                               name:post.name,
+                               author:post.author,
+                               publication:post.pub,
+                               edition:post.edition,
+                               mrp:post.mrp,
+                               lendamount:post.lendamount,
+                               localUri:post.image
+                              })
+                               .then(ref=>{
+                                  this.setState({
+                                      PickerValue:"",
+                                      name:"",
+                                      image:null,
+                                      author:"",
+                                      pub:"",
+                                      edition:"",
+                                      mrp:"",
+                                      lendamount:"",
+                                      
+                                  })
+                                  this.props.navigation.goBack()
+                              }).catch(error =>{
+                                  alert(error.message);
+                              })
+      }
+
+      
+componentDidMount() {
+    this.getLists();
   }
 
-  //   renderPost = (post) => {
-  //     return (
-  //       <View style={styles.feedItem}>
-  //         <View style={{ flex: 1 }}>
-  //           <View
-  //             style={{
-  //               flexDirection: "row",
-  //               justifyContent: "space-between",
-  //               alignItems: "center",
-  //             }}
-  //           >
-  //             <View>
-  //               <Text style={styles.name}>{data.name}</Text>
-  //               <Text style={styles.timestamp}>
-  //                 {moment(data.timestamp).fromNow()}
-  //               </Text>
-  //             </View>
+     renderPost = (post) => {
+       console.log(post.name)
+       return (
+         <View style={styles.feedItem}>
+           <View style={{ flex: 1 }}>
+             <View style={{
+                 flexDirection: "row",
+                 justifyContent: "space-between",
+                 alignItems: "center",
+             }}
+             >
+               <View>
+                 <Text 
+                 style={styles.name}
+                 >{post.name}
+                   </Text>
+                 <Text style={styles.timestamp}>
+                   {moment(post.timestamp).fromNow()}
+                 </Text>
+               </View>
 
-  //             <Ionicons name="ios-more" size={24} color="#73788B" />
-  //           </View>
-  //           <Text style={styles.post}>{data.author}</Text>
-  //           <Text style={styles.post}>{data.publication}</Text>
-  //           <Text style={styles.post}>{data.edition}</Text>
-  //           <Text style={styles.post}>{data.mrp}</Text>
-  //           <Image
-  //             source={data.image}
-  //             style={styles.postImage}
-  //             resizeMode="cover"
-  //           />
-  //           <View style={{ flexDirection: "row" }}>
-  //             <Ionicons
-  //               name="ios-heart-empty"
-  //               size={24}
-  //               color="#73788B"
-  //               style={{ marginRight: 16 }}
-  //             />
-  //             <Ionicons name="ios-chatboxes" size={24} color="#73788B" />
-  //           </View>
-  //         </View>
-  //       </View>
-  //     );
-  //   };
+            <Ionicons name="ios-more" size={24} color="#73788B" />
+            <Text style={styles.postUI}>{post.PickerValue}</Text>
+             </View>
+             <View style={{ flexDirection: "row", justifyContent:"space-between" }}>
+             <Text style={styles.postUI}>{post.author}</Text>
+             <Text style={styles.postUI}>{post.publication}</Text>
+             </View>
+             <View style={{ flexDirection: "row", justifyContent:"space-between" }}>
+             <Text style={styles.postUI}>{post.edition}</Text>
+             <Text style={styles.postUI}>{post.mrp}</Text>
+             <Text style={styles.postUI}>{post.lendamount}</Text>
+             </View>
+             <Image
+               source={{uri:post.image}}
+              style={styles.postImage}
+               resizeMode="cover"
+             />
+             <View style={{ flexDirection: "row", justifyContent:"space-between" }}>
+               <View>
+                 <Button Button color="#F1C40F" title="DECLINE"/>
+               </View>
+               <View style={{marginLeft:220}}>
+                 <Button color="#F1C40F" title="ACCEPT" onPress={this.handlePost()} />
+               </View>
+           </View>
+         </View>
+         </View>
+       );
+   };
 
-  renderPostTest = (post) => {
-    return (
-      <View style={styles.feedItem}>
-        <Text>{post.name}</Text>
-      </View>
-    );
-  };
 
   render() {
-    console.log("Doc", this.state.lists);
-
     return (
       <View style={styles.container}>
         <TouchableOpacity style={{ marginTop: 5, marginLeft: 5 }}>
@@ -124,8 +149,8 @@ export default class App extends React.Component {
         <FlatList
           style={styles.feed}
           data={this.state.lists}
-          renderItem={({ item }) => this.renderPostTest(item)}
-          keyExtractor={(item) => item._id}
+          renderItem={({ item }) => this.renderPost(item)}
+          keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
         ></FlatList>
       </View>
@@ -139,7 +164,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#EBECF4",
   },
   header: {
-    paddingTop: 64,
+    paddingTop: 32,
     paddingBottom: 16,
     backgroundColor: "#FFF",
     alignItems: "center",
@@ -182,7 +207,7 @@ const styles = StyleSheet.create({
     color: "#C4C6CE",
     marginTop: 4,
   },
-  post: {
+  postUI: {
     marginTop: 16,
     fontSize: 14,
     color: "#838899",
